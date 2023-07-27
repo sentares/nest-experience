@@ -33,7 +33,24 @@ export class TaskService {
   }
 
   async postOne(data) {
-    this.#TASKS.push(data);
+    if (!data.id) {
+      const lastTask = this.#TASKS[this.#TASKS.length - 1];
+      data.id = lastTask ? lastTask.id + 1 : 1;
+      this.#TASKS.push(data);
+    } else {
+      this.#TASKS.push(data);
+    }
+
     return this.#TASKS;
+  }
+
+  async deleteOne(id: string) {
+    const specialTask = this.#TASKS.find((task) => task.id == id);
+    if (specialTask) {
+      return (this.#TASKS = this.#TASKS.filter(
+        (task) => task.id !== parseInt(id, 10),
+      ));
+    }
+    return 'task not found';
   }
 }
