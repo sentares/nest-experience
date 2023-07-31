@@ -1,10 +1,10 @@
-import { Prop, Schema } from '@nestjs/mongoose';
-import { ITask } from './task.inteface';
+import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
+import { ITask } from '../interface';
 
 @Schema()
-export class TaskModel {
+export class TaskModel implements ITask {
   @Prop()
-  _id: string;
+  id: string;
 
   @Prop()
   title: string;
@@ -12,3 +12,5 @@ export class TaskModel {
   @Prop({ default: false })
   completed: boolean;
 }
+
+export const TaskSchema = SchemaFactory.createForClass(TaskModel);
