@@ -1,8 +1,9 @@
 import { Get, Injectable } from '@nestjs/common';
+import { ITask } from './model';
 
 @Injectable()
 export class TaskService {
-  #TASKS;
+  #TASKS: ITask[];
   constructor() {
     this.#TASKS = [
       {
@@ -28,24 +29,24 @@ export class TaskService {
   }
 
   async getOne(id: string) {
-    const specialTask = this.#TASKS.find((task) => task.id == id);
+    const specialTask = this.#TASKS.find((task) => task.id === parseInt(id));
     return specialTask || 'not find';
   }
 
   async postOne(data) {
-    if (!data.id) {
-      const lastTask = this.#TASKS[this.#TASKS.length - 1];
-      data.id = lastTask ? lastTask.id + 1 : 1;
-      this.#TASKS.push(data);
-    } else {
-      this.#TASKS.push(data);
-    }
+    const newTask = {
+      id: this.#TASKS.length + 1,
+      ...data,
+      completed: false,
+    };
+
+    this.#TASKS.push(newTask);
 
     return this.#TASKS;
   }
 
   async deleteOne(id: string) {
-    const specialTask = this.#TASKS.find((task) => task.id == id);
+    const specialTask = this.#TASKS.find((task) => task.id === parseInt(id));
     if (specialTask) {
       return (this.#TASKS = this.#TASKS.filter(
         (task) => task.id !== parseInt(id, 10),
