@@ -21,7 +21,7 @@ export class TaskController {
   }
 
   @Put('/:id')
-  async completed(@Param('id') id) {
+  async complete(@Param('id') id) {
     return await this.taskService.complete(id);
   }
 
