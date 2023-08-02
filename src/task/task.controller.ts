@@ -26,7 +26,7 @@ export class TaskController {
   }
 
   @Put('update/:id')
-  async update(@Param('id') id, @Body('title') data) {
+  async update(@Param('id') id, @Body() data) {
     return await this.taskService.update(id, data);
   }
 

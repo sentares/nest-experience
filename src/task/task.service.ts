@@ -1,4 +1,9 @@
-import { ConflictException, Injectable, Logger, NotFoundException } from '@nestjs/common';
+import {
+  ConflictException,
+  Injectable,
+  Logger,
+  NotFoundException,
+} from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
 import { CreateTaskDto } from './dto';
@@ -13,14 +18,14 @@ export class TaskService implements ITaskService {
   ) {}
 
   async getAll() {
-    const tasks =  await this.taskModel.find();
-    if(!tasks) {
-      throw new NotFoundException('Tasks are not exist')
+    const tasks = await this.taskModel.find();
+    if (!tasks) {
+      throw new NotFoundException('Tasks are not exist');
     }
-    return tasks
+    return tasks;
   }
 
- async getOne(id: string) {
+  async getOne(id: string) {
     try {
       const task = await this.taskModel.findById(id);
       return task;
@@ -29,7 +34,6 @@ export class TaskService implements ITaskService {
       throw new NotFoundException('Task is not defined');
     }
   }
-
 
   async postOne(data: CreateTaskDto) {
     const { title } = data;
@@ -40,7 +44,7 @@ export class TaskService implements ITaskService {
 
     const newTask = new this.taskModel(data);
     !newTask.type ? (newTask.type = TaskType.IMPORTANT_AND_URGENT) : null;
-    
+
     Logger.log('New task was created', TaskService.name);
     return newTask.save();
   }
@@ -50,12 +54,16 @@ export class TaskService implements ITaskService {
       _id: id,
     });
 
-    const changeTask = (task) => {
-      task.completed = !task.completed;
-      return task;
-    };
-
-    return changeTask(task).save();
+    if (task) {
+      const changeTask = (task) => {
+        task.completed = !task.completed;
+        return task;
+      };
+      Logger.log('Task updated', TaskService.name);
+      return changeTask(task).save();
+    } else {
+      throw new NotFoundException('Task is not defined');
+    }
   }
 
   async update(id, data) {
@@ -63,12 +71,21 @@ export class TaskService implements ITaskService {
       _id: id,
     });
 
-    const updateTask = (task) => {
-      task.title = data;
-      return task;
-    };
-
-    return updateTask(task).save();
+    if (task && data) {
+      const updateTask = (task) => {
+        if (data.title && data.title !== task.title) {
+          task.title = data.title;
+        }
+        if (data.type && data.type !== task.type) {
+          task.type = data.type;
+        }
+        return task;
+      };
+      Logger.log('Task updated', TaskService.name);
+      return updateTask(task).save();
+    } else {
+      throw new NotFoundException('Task is not defined');
+    }
   }
 
   async deleteOne(id) {
