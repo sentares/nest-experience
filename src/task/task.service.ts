@@ -6,7 +6,7 @@ import {
 } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
-import { CreateTaskDto } from './dto';
+import { CreateTaskDto, IdParamsDto, UpdateTaskDto } from './dto';
 import { TaskType } from './enum';
 import { ITaskService } from './interface';
 import { TaskModel } from './model';
@@ -25,14 +25,12 @@ export class TaskService implements ITaskService {
     return tasks;
   }
 
-  async getOne(id: string) {
-    try {
-      const task = await this.taskModel.findById(id);
-      return task;
-    } catch (err) {
-      Logger.error(err, 'TaskService getOne 26');
-      throw new NotFoundException('Task is not defined');
+  async getOne(id: IdParamsDto) {
+    const task = await this.taskModel.find({ _id: id });
+    if (!task?.length) {
+      return new NotFoundException('Task not found');
     }
+    return task;
   }
 
   async postOne(data: CreateTaskDto) {
@@ -49,7 +47,7 @@ export class TaskService implements ITaskService {
     return newTask.save();
   }
 
-  async complete(id) {
+  async complete(id: IdParamsDto) {
     const task = await this.taskModel.findOne({
       _id: id,
     });
@@ -66,10 +64,8 @@ export class TaskService implements ITaskService {
     }
   }
 
-  async update(id, data) {
-    const task = await this.taskModel.findOne({
-      _id: id,
-    });
+  async update(id, data: UpdateTaskDto) {
+    const task = await this.taskModel.findById(id);
 
     if (task && data) {
       const updateTask = (task) => {
@@ -88,7 +84,14 @@ export class TaskService implements ITaskService {
     }
   }
 
-  async deleteOne(id) {
-    return 'task not found';
+  async deleteOne(id: IdParamsDto) {
+    const task = await this.taskModel.findOneAndDelete({ _id: id });
+
+    if (task) {
+      Logger.log('Task deleted', TaskService.name);
+      return 'Task deleted successfully';
+    } else {
+      throw new NotFoundException('Task not found');
+    }
   }
 }
