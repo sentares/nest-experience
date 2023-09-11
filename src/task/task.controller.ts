@@ -4,9 +4,12 @@ import {
   Delete,
   Get,
   Param,
+  Patch,
   Post,
   Put,
 } from '@nestjs/common';
+import { UpdateTaskDto } from './dto';
+import { ITask } from './interface';
 import { TaskService } from './task.service';
 
 @Controller('task')
@@ -28,13 +31,16 @@ export class TaskController {
     return await this.taskService.postOne(data);
   }
 
-  @Put('/:id')
-  async complete(@Param('id') id) {
-    return await this.taskService.complete(id);
-  }
+  // @Put('/:id')
+  // async complete(@Param('id') id) {
+  //   return await this.taskService.complete(id);
+  // }
 
-  @Put('update/:id')
-  async update(@Param('id') id, @Body() data) {
+  @Patch('/:id')
+  async update(
+    @Param('id') id: string,
+    @Body() data: UpdateTaskDto,
+  ): Promise<ITask> {
     return await this.taskService.update(id, data);
   }
 

@@ -13,7 +13,6 @@ export class TaskModel implements ITask {
   @Prop({ default: false })
   completed: boolean;
 
-
   @Prop()
   type: TaskType;
 }
